@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
-using JSLCore;
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
-public class BasePostEffect : MonoSingleton<BasePostEffect>
+public class BasePostEffect : MonoBehaviour
 {
     [SerializeField] private Shader m_postEffectShader = null;
     private Material m_postEffectMaterial = null;

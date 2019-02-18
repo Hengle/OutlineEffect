@@ -1,39 +1,45 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
+using System.Collections.Generic;
 
-public class OutlinePrepassCommandBuffer
+public class OutlineCommandBuffer
 {
     private readonly int OUTLINE_COLOR_ID = Shader.PropertyToID("_OutlineCol");
-    
+
+    public bool IsEmpty { get { return m_renderers.Count == 0; } }
+    private List<Renderer> m_renderers;
     private RenderTexture m_renderTexture;
     private Material m_prepassMaterial;
-    private bool m_clear;
     private CommandBuffer m_commandBuffer;
 
-    public OutlinePrepassCommandBuffer(Renderer[] renderers, RenderTexture renderTexture, Material prepassMaterial, Color color, bool clear)
-    {   
+    public OutlineCommandBuffer(Renderer[] renderers, RenderTexture renderTexture, Material prepassMaterial, Color color)
+    {
+        m_renderers = new List<Renderer>();
+        m_renderers.AddRange(renderers);
         m_renderTexture = renderTexture;
         m_prepassMaterial = prepassMaterial;
         m_prepassMaterial.SetColor(OUTLINE_COLOR_ID, color);
-        m_clear = clear;
-
-        UpdateCommandBuffer(renderers);
     }
     
-    private void UpdateCommandBuffer(Renderer[] renderers)
+    public void UpdateCommandBuffer(bool clear)
     {
         m_commandBuffer = new CommandBuffer();
         m_commandBuffer.SetRenderTarget(m_renderTexture);
 
-        if(m_clear)
+        if(clear)
         {
             m_commandBuffer.ClearRenderTarget(true, true, Color.black);
         }
         
-        foreach (Renderer r in renderers)
+        foreach (Renderer r in m_renderers)
         {
             m_commandBuffer.DrawRenderer(r, m_prepassMaterial);
         }
+    }
+
+    public void UpdateColor(Color color)
+    {
+        m_prepassMaterial.SetColor(OUTLINE_COLOR_ID, color);
     }
 
     public void Execute()
