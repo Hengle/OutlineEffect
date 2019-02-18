@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
 
-public class OutlinePostEffectCmdBuffer : PostEffectBase
+public class OutlinePostEffectCmdBuffer : BasePostEffect
 {
     private RenderTexture renderTexture = null;
     private CommandBuffer commandBuffer = null;
@@ -61,7 +61,7 @@ public class OutlinePostEffectCmdBuffer : PostEffectBase
 
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        if (_Material && renderTexture && prepassMaterial && commandBuffer != null)
+        if (PostEffectMaterial && renderTexture && prepassMaterial && commandBuffer != null)
         {
             //通过Command Buffer可以设置自定义材质的颜色
             prepassMaterial.SetColor("_OutlineCol", outLineColor);
@@ -73,28 +73,28 @@ public class OutlinePostEffectCmdBuffer : PostEffectBase
             RenderTexture temp2 = RenderTexture.GetTemporary(source.width >> downSample, source.height >> downSample, 0);
 
             //高斯模糊，两次模糊，横向纵向，使用pass0进行高斯模糊
-            _Material.SetVector("_offsets", new Vector4(0, samplerScale, 0, 0));
-            Graphics.Blit(renderTexture, temp1, _Material, 0);
-            _Material.SetVector("_offsets", new Vector4(samplerScale, 0, 0, 0));
-            Graphics.Blit(temp1, temp2, _Material, 0);
+            PostEffectMaterial.SetVector("_offsets", new Vector4(0, samplerScale, 0, 0));
+            Graphics.Blit(renderTexture, temp1, PostEffectMaterial, 0);
+            PostEffectMaterial.SetVector("_offsets", new Vector4(samplerScale, 0, 0, 0));
+            Graphics.Blit(temp1, temp2, PostEffectMaterial, 0);
 
             //如果有叠加再进行迭代模糊处理
             for (int i = 0; i < iteration; i++)
             {
-                _Material.SetVector("_offsets", new Vector4(0, samplerScale, 0, 0));
-                Graphics.Blit(temp2, temp1, _Material, 0);
-                _Material.SetVector("_offsets", new Vector4(samplerScale, 0, 0, 0));
-                Graphics.Blit(temp1, temp2, _Material, 0);
+                PostEffectMaterial.SetVector("_offsets", new Vector4(0, samplerScale, 0, 0));
+                Graphics.Blit(temp2, temp1, PostEffectMaterial, 0);
+                PostEffectMaterial.SetVector("_offsets", new Vector4(samplerScale, 0, 0, 0));
+                Graphics.Blit(temp1, temp2, PostEffectMaterial, 0);
             }
 
             //用模糊图和原始图计算出轮廓图
-            _Material.SetTexture("_BlurTex", temp2);
-            Graphics.Blit(renderTexture, temp1, _Material, 1);
+            PostEffectMaterial.SetTexture("_BlurTex", temp2);
+            Graphics.Blit(renderTexture, temp1, PostEffectMaterial, 1);
 
             //轮廓图和场景图叠加
-            _Material.SetTexture("_BlurTex", temp1);
-            _Material.SetFloat("_OutlineStrength", outLineStrength);
-            Graphics.Blit(source, destination, _Material, 2);
+            PostEffectMaterial.SetTexture("_BlurTex", temp1);
+            PostEffectMaterial.SetFloat("_OutlineStrength", outLineStrength);
+            Graphics.Blit(source, destination, PostEffectMaterial, 2);
 
             RenderTexture.ReleaseTemporary(temp1);
             RenderTexture.ReleaseTemporary(temp2);

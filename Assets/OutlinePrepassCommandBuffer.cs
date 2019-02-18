@@ -3,45 +3,33 @@ using UnityEngine.Rendering;
 
 public class OutlinePrepassCommandBuffer
 {
-    private Transform m_target;
-    private Shader m_prepassShader;
-    private Color m_color;
-    private int m_downsample;
-
-    public OutlinePrepassCommandBuffer(Transform target, Shader prepassShader, Color color, int downsample)
-    {
-        if(m_target == null || prepassShader == null)
-        {
-            return;
-        }
-
-        m_target = target;
-        m_prepassShader = prepassShader;
-        m_color = color;
-        m_downsample = downsample;
-
-        UpdateCommandBuffer();
-    }
-
-    private Material m_prepassMaterial;
+    private readonly int OUTLINE_COLOR_ID = Shader.PropertyToID("_OutlineCol");
+    
     private RenderTexture m_renderTexture;
+    private Material m_prepassMaterial;
+    private bool m_clear;
     private CommandBuffer m_commandBuffer;
-    private void UpdateCommandBuffer()
-    {
-        if (m_prepassMaterial == null)
-        {
-            m_prepassMaterial = new Material(m_prepassShader);
-        }
-            
-        Renderer[] renderers = m_target.GetComponentsInChildren<Renderer>();
-        if (m_renderTexture == null)
-        {
-            m_renderTexture = RenderTexture.GetTemporary(Screen.width >> m_downsample, Screen.height >> m_downsample, 0);
-        }
 
+    public OutlinePrepassCommandBuffer(Renderer[] renderers, RenderTexture renderTexture, Material prepassMaterial, Color color, bool clear)
+    {   
+        m_renderTexture = renderTexture;
+        m_prepassMaterial = prepassMaterial;
+        m_prepassMaterial.SetColor(OUTLINE_COLOR_ID, color);
+        m_clear = clear;
+
+        UpdateCommandBuffer(renderers);
+    }
+    
+    private void UpdateCommandBuffer(Renderer[] renderers)
+    {
         m_commandBuffer = new CommandBuffer();
         m_commandBuffer.SetRenderTarget(m_renderTexture);
-        m_commandBuffer.ClearRenderTarget(true, true, Color.black);
+
+        if(m_clear)
+        {
+            m_commandBuffer.ClearRenderTarget(true, true, Color.black);
+        }
+        
         foreach (Renderer r in renderers)
         {
             m_commandBuffer.DrawRenderer(r, m_prepassMaterial);
@@ -50,7 +38,6 @@ public class OutlinePrepassCommandBuffer
 
     public void Execute()
     {
-        m_prepassMaterial.SetColor("_OutlineCol", m_color);
         Graphics.ExecuteCommandBuffer(m_commandBuffer);
     }
 
@@ -60,12 +47,6 @@ public class OutlinePrepassCommandBuffer
         {
             GameObject.DestroyImmediate(m_prepassMaterial);
             m_prepassMaterial = null;
-        }
-
-        if (m_renderTexture)
-        {
-            RenderTexture.ReleaseTemporary(m_renderTexture);
-            m_renderTexture = null;
         }
         
         if (m_commandBuffer != null)
