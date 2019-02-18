@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class OutlineCommandBuffer
 {
-    private readonly int OUTLINE_COLOR_ID = Shader.PropertyToID("_OutlineCol");
+    private readonly int COLOR_ID = Shader.PropertyToID("_Color");
 
     public bool IsEmpty { get { return m_renderers.Count == 0; } }
     private List<Renderer> m_renderers;
@@ -18,7 +18,7 @@ public class OutlineCommandBuffer
         m_renderers.AddRange(renderers);
         m_renderTexture = renderTexture;
         m_prepassMaterial = prepassMaterial;
-        m_prepassMaterial.SetColor(OUTLINE_COLOR_ID, color);
+        m_prepassMaterial.SetColor(COLOR_ID, color);
     }
     
     public void UpdateCommandBuffer(bool clear)
@@ -39,7 +39,7 @@ public class OutlineCommandBuffer
 
     public void UpdateColor(Color color)
     {
-        m_prepassMaterial.SetColor(OUTLINE_COLOR_ID, color);
+        m_prepassMaterial.SetColor(COLOR_ID, color);
     }
 
     public void Execute()

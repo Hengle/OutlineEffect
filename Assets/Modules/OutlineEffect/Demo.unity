@@ -640,10 +640,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_postEffectShader: {fileID: 4800000, guid: 6e8bdd00864a07f498586cae1be99d1a, type: 3}
   m_prepassShader: {fileID: 4800000, guid: a9d323f99da4b6641a5970c9616a0a1e, type: 3}
-  m_samplerScale: 1
+  m_samplerScale: 1.5
   m_downSample: 1
-  m_iteration: 2
-  m_outlineStrength: 3
+  m_iteration: 1
+  m_outlineStrength: 2
 --- !u!81 &1338333953
 AudioListener:
   m_ObjectHideFlags: 0

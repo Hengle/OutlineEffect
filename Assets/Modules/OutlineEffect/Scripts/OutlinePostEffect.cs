@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using JSLCore.Event;
 
 public class OutlinePostEffect : BasePostEffect
-{ 
+{
+    private readonly int OFFSET_ID = Shader.PropertyToID("_Offset");
+    private readonly int BLUR_TEX_ID = Shader.PropertyToID("_BlurTex");
+    private readonly int OUTLINE_STRENGTH_ID = Shader.PropertyToID("_OutlineStrength");
+
     [SerializeField] private Shader m_prepassShader = null;
     [SerializeField] private float m_samplerScale = 1;
     [SerializeField] private int m_downSample = 1;
@@ -115,25 +119,25 @@ public class OutlinePostEffect : BasePostEffect
         {
             RenderTexture temp1 = RenderTexture.GetTemporary(source.width >> m_downSample, source.height >> m_downSample, 0);
             RenderTexture temp2 = RenderTexture.GetTemporary(source.width >> m_downSample, source.height >> m_downSample, 0);
-            
-            PostEffectMaterial.SetVector("_offsets", new Vector4(0, m_samplerScale, 0, 0));
+
+            PostEffectMaterial.SetVector(OFFSET_ID, new Vector4(0, m_samplerScale, 0, 0));
             Graphics.Blit(m_renderTexture, temp1, PostEffectMaterial, 0);
-            PostEffectMaterial.SetVector("_offsets", new Vector4(m_samplerScale, 0, 0, 0));
+            PostEffectMaterial.SetVector(OFFSET_ID, new Vector4(m_samplerScale, 0, 0, 0));
             Graphics.Blit(temp1, temp2, PostEffectMaterial, 0);
-            
+
             for (int i = 0; i < m_iteration; i++)
             {
-                PostEffectMaterial.SetVector("_offsets", new Vector4(0, m_samplerScale, 0, 0));
+                PostEffectMaterial.SetVector(OFFSET_ID, new Vector4(0, m_samplerScale, 0, 0));
                 Graphics.Blit(temp2, temp1, PostEffectMaterial, 0);
-                PostEffectMaterial.SetVector("_offsets", new Vector4(m_samplerScale, 0, 0, 0));
+                PostEffectMaterial.SetVector(OFFSET_ID, new Vector4(m_samplerScale, 0, 0, 0));
                 Graphics.Blit(temp1, temp2, PostEffectMaterial, 0);
             }
-            
-            PostEffectMaterial.SetTexture("_BlurTex", temp2);
+
+            PostEffectMaterial.SetTexture(BLUR_TEX_ID, temp2);
             Graphics.Blit(m_renderTexture, temp1, PostEffectMaterial, 1);
-            
-            PostEffectMaterial.SetTexture("_BlurTex", temp1);
-            PostEffectMaterial.SetFloat("_OutlineStrength", m_outlineStrength);
+
+            PostEffectMaterial.SetTexture(BLUR_TEX_ID, temp1);
+            PostEffectMaterial.SetFloat(OUTLINE_STRENGTH_ID, m_outlineStrength);
             Graphics.Blit(source, destination, PostEffectMaterial, 2);
 
             RenderTexture.ReleaseTemporary(temp1);
