@@ -9,23 +9,19 @@
 	{
 		Pass
 		{
-			ZTest Off
-			Cull Off
-			ZWrite Off
-			Fog{ Mode Off }
- 
+			Cull Off ZWrite Off ZTest Always
+
 			CGPROGRAM
 			#pragma vertex vert_blur
 			#pragma fragment frag_blur
-
 			#include "UnityCG.cginc"
-
+			
 			struct a2v
 			{
 				float4 vertex : POSITION;
 				float4 texcoord : TEXCOORD0;
 			};
-
+			
 			struct v2f_blur
 			{
 				float4 pos : SV_POSITION;
@@ -34,22 +30,21 @@
 				float4 uv23 : TEXCOORD2;
 				float4 uv45 : TEXCOORD3;
 			};
-
+			
 			sampler2D _MainTex;
 			float4 _MainTex_TexelSize;
 			float4 _Offset;
-
+			
 			v2f_blur vert_blur(a2v v)
 			{
 				v2f_blur o;
 				_Offset *= _MainTex_TexelSize.xyxy;
 				o.pos = UnityObjectToClipPos(v.vertex);
 				o.uv = v.texcoord.xy;
- 
 				o.uv01 = v.texcoord.xyxy + _Offset.xyxy * float4(1, 1, -1, -1);
 				o.uv23 = v.texcoord.xyxy + _Offset.xyxy * float4(1, 1, -1, -1) * 2.0;
 				o.uv45 = v.texcoord.xyxy + _Offset.xyxy * float4(1, 1, -1, -1) * 3.0;
- 
+				
 				return o;
 			}
 
@@ -69,10 +64,7 @@
 		}
 		Pass
 		{
-			ZTest Off
-			Cull Off
-			ZWrite Off
-			Fog{ Mode Off }
+			Cull Off ZWrite Off ZTest Always
  
 			CGPROGRAM
 			#pragma vertex vert_cull
@@ -122,11 +114,7 @@
 		}
 		Pass
 		{
- 
-			ZTest Off
-			Cull Off
-			ZWrite Off
-			Fog{ Mode Off }
+			Cull Off ZWrite Off ZTest Always
  
 			CGPROGRAM
 			#pragma vertex vert_add
@@ -178,6 +166,5 @@
 
 			ENDCG
 		}
- 
 	}
 }
