@@ -1,4 +1,4 @@
-﻿Shader "Outline/PrePass"
+﻿Shader "FS/Outline/PrePass"
 {
 	SubShader
 	{

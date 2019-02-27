@@ -1,39 +1,42 @@
 ﻿using UnityEngine;
 using JSLCore.Event;
 
-public class OutlineEffectComponent : MonoBehaviour
+namespace TA.OutlineEffect
 {
-    [SerializeField] private Color m_outlineColor = Color.white;
-    [SerializeField] private bool m_clickTurnOn = false;
-
-    private bool m_effectOn;
-
-    private void OnMouseDown()
+    public class OutlineEffectComponent : MonoBehaviour
     {
-        if(m_clickTurnOn)
-        {
-            m_effectOn = !m_effectOn;
+        [SerializeField] private Color m_outlineColor = Color.white;
+        [SerializeField] private bool m_clickTurnOn = false;
 
-            if(m_effectOn)
+        private bool m_effectOn;
+
+        private void OnMouseDown()
+        {
+            if (m_clickTurnOn)
             {
-                EventManager.Instance.SendEvent((int)OutlineEvents.AddOutline, new OutlineData(m_outlineColor, gameObject));
+                m_effectOn = !m_effectOn;
+
+                if (m_effectOn)
+                {
+                    EventManager.Instance.SendEvent((int)OutlineEvents.AddOutline, new OutlineData(m_outlineColor, gameObject));
+                }
+                else
+                {
+                    EventManager.Instance.SendEvent((int)OutlineEvents.RemoveOutline, gameObject);
+                }
             }
             else
             {
-                EventManager.Instance.SendEvent((int)OutlineEvents.RemoveOutline, gameObject);
+                EventManager.Instance.SendEvent((int)OutlineEvents.AddOutline, new OutlineData(m_outlineColor, gameObject));
             }
         }
-        else
-        {
-            EventManager.Instance.SendEvent((int)OutlineEvents.AddOutline, new OutlineData(m_outlineColor, gameObject));
-        }
-    }
 
-    private void OnMouseUp()
-    {
-        if (!m_clickTurnOn)
+        private void OnMouseUp()
         {
-            EventManager.Instance.SendEvent((int)OutlineEvents.RemoveOutline, gameObject);
+            if (!m_clickTurnOn)
+            {
+                EventManager.Instance.SendEvent((int)OutlineEvents.RemoveOutline, gameObject);
+            }
         }
     }
 }

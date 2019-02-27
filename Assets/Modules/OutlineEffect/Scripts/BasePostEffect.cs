@@ -1,40 +1,43 @@
 ﻿using UnityEngine;
 
-[ExecuteInEditMode]
-[RequireComponent(typeof(Camera))]
-public class BasePostEffect : MonoBehaviour
+namespace TA.OutlineEffect
 {
-    [SerializeField] private Shader m_postEffectShader = null;
-    private Material m_postEffectMaterial = null;
-    public Material PostEffectMaterial
+    [ExecuteInEditMode]
+    [RequireComponent(typeof(Camera))]
+    public class BasePostEffect : MonoBehaviour
     {
-        get
+        [SerializeField] private Shader m_postEffectShader = null;
+        private Material m_postEffectMaterial = null;
+        public Material PostEffectMaterial
         {
-            if (m_postEffectMaterial == null)
+            get
             {
-                m_postEffectMaterial = CreateMaterial(m_postEffectShader);
+                if (m_postEffectMaterial == null)
+                {
+                    m_postEffectMaterial = CreateMaterial(m_postEffectShader);
+                }
+
+                return m_postEffectMaterial;
             }
-                
-            return m_postEffectMaterial;
         }
-    }
-    
-    private Material CreateMaterial(Shader shader)
-    {
-        if (shader == null)
-        {
-            return null;
-        }
-            
-        if (!shader.isSupported)
-        {
-            return null;
-        }
-            
-        Material material = new Material(shader);
-        material.hideFlags = HideFlags.DontSave;
 
-        return material;
-    }
+        private Material CreateMaterial(Shader shader)
+        {
+            if (shader == null)
+            {
+                return null;
+            }
 
+            if (!shader.isSupported)
+            {
+                return null;
+            }
+
+            Material material = new Material(shader);
+            material.hideFlags = HideFlags.DontSave;
+
+            return material;
+        }
+
+    }
 }

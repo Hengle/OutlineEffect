@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
 
-public class OutlineData
+namespace TA.OutlineEffect
 {
-    public Color Color;
-    public GameObject Target;
-
-    public OutlineData(Color color, GameObject target)
+    public class OutlineData
     {
-        Color = color;
-        Target = target;
+        public Color Color;
+        public GameObject Target;
+
+        public OutlineData(Color color, GameObject target)
+        {
+            Color = color;
+            Target = target;
+        }
     }
 }

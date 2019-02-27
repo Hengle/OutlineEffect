@@ -1,4 +1,4 @@
-﻿Shader "Outline/PostEffect"
+﻿Shader "FS/Outline/PostEffect"
 {
 	Properties
 	{
