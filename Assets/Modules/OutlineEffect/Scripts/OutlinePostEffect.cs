@@ -54,21 +54,21 @@ namespace TA.OutlineEffect
 
         private void AddOutlineEffect(GameObject targetObject, Color color)
         {
-            m_cacheRenderers.Clear();
-            m_cacheRenderers.AddRange(targetObject.GetComponentsInChildren<SkinnedMeshRenderer>());
-            m_cacheRenderers.AddRange(targetObject.GetComponentsInChildren<MeshRenderer>());
-
-            if (m_cacheRenderers == null || m_cacheRenderers.Count == 0)
-            {
-                return;
-            }
-
             if (m_commandBuffers.ContainsKey(targetObject))
             {
                 m_commandBuffers[targetObject].UpdateColor(color);
             }
             else
             {
+                m_cacheRenderers.Clear();
+                m_cacheRenderers.AddRange(targetObject.GetComponentsInChildren<SkinnedMeshRenderer>());
+                m_cacheRenderers.AddRange(targetObject.GetComponentsInChildren<MeshRenderer>());
+
+                if (m_cacheRenderers == null || m_cacheRenderers.Count == 0)
+                {
+                    return;
+                }
+
                 m_commandBuffers.Add(targetObject, new OutlineCommandBuffer(m_cacheRenderers.ToArray(), m_renderTexture, new Material(m_prepassShader), color));
             }
 

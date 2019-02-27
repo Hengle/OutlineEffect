@@ -59,7 +59,7 @@ namespace TA.OutlineEffect
 
             if (m_commandBuffer != null)
             {
-                m_commandBuffer.Release();
+                m_commandBuffer.Dispose();
                 m_commandBuffer = null;
             }
 
