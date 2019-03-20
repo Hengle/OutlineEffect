@@ -1,9 +1,12 @@
-﻿Shader "FS/Outline/PrePass"
+﻿Shader "FS/Outline/Prepass/SolidColor"
 {
 	SubShader
 	{
 		Pass
 		{
+			ZWrite On
+			ZTest Greater
+
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag

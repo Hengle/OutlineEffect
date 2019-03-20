@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
+using JSLCore;
 
-namespace TA.OutlineEffect
+namespace TA.PostProcessing.Outline
 {
     [ExecuteInEditMode]
     [RequireComponent(typeof(Camera))]
-    public class BasePostEffect : MonoBehaviour
+    public class BasePostEffect : MonoSingleton<BasePostEffect>
     {
-        [SerializeField] private Shader m_postEffectShader = null;
+        public Shader postEffectShader = null;
         private Material m_postEffectMaterial = null;
         public Material PostEffectMaterial
         {
@@ -14,7 +15,7 @@ namespace TA.OutlineEffect
             {
                 if (m_postEffectMaterial == null)
                 {
-                    m_postEffectMaterial = CreateMaterial(m_postEffectShader);
+                    m_postEffectMaterial = CreateMaterial(postEffectShader);
                 }
 
                 return m_postEffectMaterial;

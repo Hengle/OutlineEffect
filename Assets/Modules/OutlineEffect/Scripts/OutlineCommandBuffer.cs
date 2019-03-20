@@ -2,15 +2,14 @@
 using UnityEngine.Rendering;
 using System.Collections.Generic;
 
-namespace TA.OutlineEffect
+namespace TA.PostProcessing.Outline
 {
     public class OutlineCommandBuffer
     {
         private readonly int COLOR_ID = Shader.PropertyToID("_Color");
 
-        public bool IsEmpty { get { return m_renderers.Count == 0; } }
+        public bool isEmpty { get { return m_renderers.Count == 0; } }
         private List<Renderer> m_renderers;
-        private RenderTexture m_renderTexture;
         private Material m_prepassMaterial;
         private CommandBuffer m_commandBuffer;
 
@@ -18,16 +17,15 @@ namespace TA.OutlineEffect
         {
             m_renderers = new List<Renderer>();
             m_renderers.AddRange(renderers);
-            m_renderTexture = renderTexture;
             m_prepassMaterial = prepassMaterial;
             m_prepassMaterial.SetColor(COLOR_ID, color);
+
+            m_commandBuffer = new CommandBuffer();
+            m_commandBuffer.SetRenderTarget(renderTexture);
         }
 
         public void UpdateCommandBuffer(bool clear)
         {
-            m_commandBuffer = new CommandBuffer();
-            m_commandBuffer.SetRenderTarget(m_renderTexture);
-
             if (clear)
             {
                 m_commandBuffer.ClearRenderTarget(true, true, Color.black);
@@ -39,7 +37,15 @@ namespace TA.OutlineEffect
             }
         }
 
-        public void UpdateColor(Color color)
+        public void SetRenderTexture(RenderTexture renderTexture)
+        {
+            DestroyCommandBuffer();
+
+            m_commandBuffer = new CommandBuffer();
+            m_commandBuffer.SetRenderTarget(renderTexture);
+        }
+
+        public void SetColor(Color color)
         {
             m_prepassMaterial.SetColor(COLOR_ID, color);
         }
@@ -57,12 +63,16 @@ namespace TA.OutlineEffect
                 m_prepassMaterial = null;
             }
 
+            DestroyCommandBuffer();
+        }
+
+        private void DestroyCommandBuffer()
+        {
             if (m_commandBuffer != null)
             {
                 m_commandBuffer.Dispose();
                 m_commandBuffer = null;
             }
-
         }
     }
 }
