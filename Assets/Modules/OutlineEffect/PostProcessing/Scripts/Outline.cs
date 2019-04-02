@@ -33,7 +33,12 @@ namespace UnityEngine.Rendering.PostProcessing
         private int m_offsetID;
         private int m_blurTexID;
         private int m_strengthID;
-        
+
+        public override DepthTextureMode GetCameraFlags()
+        {
+            return DepthTextureMode.Depth;
+        }
+
         public override void Init()
         {
             m_shader = Shader.Find("Hidden/Custom/Outline");
@@ -51,7 +56,7 @@ namespace UnityEngine.Rendering.PostProcessing
 
             context.command.GetTemporaryRT(m_prepassRT, context.camera.pixelWidth >> settings.downsample, context.camera.pixelHeight >> settings.downsample);
             context.command.SetRenderTarget(m_prepassRT);
-            context.command.ClearRenderTarget(true, true, Color.black);
+            context.command.ClearRenderTarget(false, true, Color.clear);
 
             OutlineManager.Instance.ExecuteCommandBuffer(context.command);
 

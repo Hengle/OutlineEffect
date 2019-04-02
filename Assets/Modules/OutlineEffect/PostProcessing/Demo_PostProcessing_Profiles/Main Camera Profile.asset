@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Main Camera Profile
   m_EditorClassIdentifier: 
   settings:
-  - {fileID: 114592638656806002}
---- !u!114 &114592638656806002
+  - {fileID: 114006438703453444}
+--- !u!114 &114006438703453444
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -38,10 +38,10 @@ MonoBehaviour:
     value: 1
   iteration:
     overrideState: 1
-    value: 10
+    value: 1
   strength:
     overrideState: 1
-    value: 10
+    value: 5
   debugPrepass:
     overrideState: 1
     value: 0
