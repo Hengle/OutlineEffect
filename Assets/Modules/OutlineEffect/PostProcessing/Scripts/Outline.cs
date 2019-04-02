@@ -2,10 +2,24 @@ using System;
 
 namespace UnityEngine.Rendering.PostProcessing
 {
+    public enum PrepassType
+    {
+        SolidColor,
+        SolidColorDepth,
+    }
+
+    [Serializable]
+    public class PrepassTypeParamter : ParameterOverride<PrepassType>
+    {
+
+    }
+
     [Serializable]
     [PostProcess(typeof(OutlineRenderer), PostProcessEvent.AfterStack, "Custom/Outline")]
     public sealed class Outline : PostProcessEffectSettings
     {
+        public PrepassTypeParamter prepassType = new PrepassTypeParamter { value = PrepassType.SolidColor };
+
         [Range(1, 5)]
         public IntParameter downsample = new IntParameter { value = 1 };
 
@@ -27,6 +41,8 @@ namespace UnityEngine.Rendering.PostProcessing
     internal sealed class OutlineRenderer : PostProcessEffectRenderer<Outline>
     {
         private Shader m_shader;
+        private Shader m_prepassShader;
+        private PrepassType m_lastPrepassType = PrepassType.SolidColor;
         private int m_prepassRT;
         private int m_tempRT1;
         private int m_tempRT2;
@@ -41,6 +57,8 @@ namespace UnityEngine.Rendering.PostProcessing
 
         public override void Init()
         {
+            UpdatePrepassShader();
+
             m_shader = Shader.Find("Hidden/Custom/Outline");
             m_prepassRT = Shader.PropertyToID("_PrepassRT");
             m_offsetID = Shader.PropertyToID("_Offset");
@@ -49,9 +67,32 @@ namespace UnityEngine.Rendering.PostProcessing
 
             base.Init();
         }
-        
+
+        private void UpdatePrepassShader()
+        {
+            if(m_prepassShader != null && m_lastPrepassType == settings.prepassType)
+            {
+                return;
+            }
+
+            m_lastPrepassType = settings.prepassType;
+            switch(m_lastPrepassType)
+            {
+                case PrepassType.SolidColor:
+                    m_prepassShader = Shader.Find("Outline/Prepass/SolidColor");
+                    break;
+                case PrepassType.SolidColorDepth:
+                    m_prepassShader = Shader.Find("Outline/Prepass/SolidColorDepth");
+                    break;
+            }
+
+            OutlineManager.Instance.SetPrepassShader(m_prepassShader);
+        }
+
         public override void Render(PostProcessRenderContext context)
         {
+            UpdatePrepassShader();
+
             var sheet = context.propertySheets.Get(m_shader);
 
             context.command.GetTemporaryRT(m_prepassRT, context.camera.pixelWidth >> settings.downsample, context.camera.pixelHeight >> settings.downsample);
