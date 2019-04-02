@@ -38,10 +38,10 @@ MonoBehaviour:
     value: 1
   iteration:
     overrideState: 1
-    value: 1
+    value: 9
   strength:
     overrideState: 1
-    value: 5
+    value: 10
   debugPrepass:
     overrideState: 1
     value: 0

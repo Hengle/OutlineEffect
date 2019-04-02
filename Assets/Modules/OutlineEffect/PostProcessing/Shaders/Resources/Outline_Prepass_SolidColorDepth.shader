@@ -1,4 +1,4 @@
-﻿Shader "Outline/Prepass/SolidColor"
+﻿Shader "Outline/Prepass/SolidColorDepth"
 {
 	SubShader
 	{
@@ -23,21 +23,28 @@
 			struct v2f
 			{
 				float4 vertex : SV_POSITION;
+                float4 projPos : TEXCOORD0;
 			};
             
+            sampler2D_float _CameraDepthTexture;
 			fixed4 _Color;
 			
 			v2f vert(a2f v)
 			{
 				v2f o;
 				o.vertex = UnityObjectToClipPos(v.vertex);
+                o.projPos = ComputeScreenPos(o.vertex);
+                COMPUTE_EYEDEPTH(o.projPos.z);
                 
 				return o;
 			}
 			
 			fixed4 frag(v2f i) : SV_Target
 			{
-				return _Color;
+                float sceneZ = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.projPos)));
+                float zCull = ceil(sceneZ - i.projPos.z + 0.01);
+            
+				return _Color * zCull;
 			}
 			ENDCG
 		}
