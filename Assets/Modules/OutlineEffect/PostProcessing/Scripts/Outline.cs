@@ -6,6 +6,8 @@ namespace UnityEngine.Rendering.PostProcessing
     {
         SolidColor,
         SolidColorDepth,
+        Alpha,
+        AlphaDepth,
     }
 
     [Serializable]
@@ -40,6 +42,17 @@ namespace UnityEngine.Rendering.PostProcessing
 
     internal sealed class OutlineRenderer : PostProcessEffectRenderer<Outline>
     {
+        private const string SHADER_NAME_OUTLINE = "Hidden/Custom/Outline";
+        private const string SHADER_NAME_PREPASS_SOLID_COLOR = "Outline/Prepass/SolidColor";
+        private const string SHADER_NAME_PREPASS_SOLID_COLOR_DEPTH = "Outline/Prepass/SolidColorDepth";
+        private const string SHADER_NAME_PREPASS_ALPHA = "Outline/Prepass/Alpha";
+        private const string SHADER_NAME_PREPASS_ALPHA_DEPTH = "Outline/Prepass/AlphaDepth";
+
+        private const string PROPERTY_NAME_PREPASS_RT = "_PrepassRT";
+        private const string PROPERTY_NAME_OFFSET = "_Offset";
+        private const string PROPERTY_NAME_BLUR_TEX = "_BlurTex";
+        private const string PROPERTY_NAME_STRENGTH = "_Strength";
+
         private Shader m_shader;
         private Shader m_prepassShader;
         private PrepassType m_lastPrepassType = PrepassType.SolidColor;
@@ -59,11 +72,11 @@ namespace UnityEngine.Rendering.PostProcessing
         {
             UpdatePrepassShader();
 
-            m_shader = Shader.Find("Hidden/Custom/Outline");
-            m_prepassRT = Shader.PropertyToID("_PrepassRT");
-            m_offsetID = Shader.PropertyToID("_Offset");
-            m_blurTexID = Shader.PropertyToID("_BlurTex");
-            m_strengthID = Shader.PropertyToID("_Strength");
+            m_shader = Shader.Find(SHADER_NAME_OUTLINE);
+            m_prepassRT = Shader.PropertyToID(PROPERTY_NAME_PREPASS_RT);
+            m_offsetID = Shader.PropertyToID(PROPERTY_NAME_OFFSET);
+            m_blurTexID = Shader.PropertyToID(PROPERTY_NAME_BLUR_TEX);
+            m_strengthID = Shader.PropertyToID(PROPERTY_NAME_STRENGTH);
 
             base.Init();
         }
@@ -79,10 +92,16 @@ namespace UnityEngine.Rendering.PostProcessing
             switch(m_lastPrepassType)
             {
                 case PrepassType.SolidColor:
-                    m_prepassShader = Shader.Find("Outline/Prepass/SolidColor");
+                    m_prepassShader = Shader.Find(SHADER_NAME_PREPASS_SOLID_COLOR);
                     break;
                 case PrepassType.SolidColorDepth:
-                    m_prepassShader = Shader.Find("Outline/Prepass/SolidColorDepth");
+                    m_prepassShader = Shader.Find(SHADER_NAME_PREPASS_SOLID_COLOR_DEPTH);
+                    break;
+                case PrepassType.Alpha:
+                    m_prepassShader = Shader.Find(SHADER_NAME_PREPASS_ALPHA);
+                    break;
+                case PrepassType.AlphaDepth:
+                    m_prepassShader = Shader.Find(SHADER_NAME_PREPASS_ALPHA_DEPTH);
                     break;
             }
 

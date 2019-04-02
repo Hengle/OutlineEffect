@@ -32,7 +32,7 @@ MonoBehaviour:
     value: 1
   prepassType:
     overrideState: 1
-    value: 1
+    value: 0
   downsample:
     overrideState: 1
     value: 1
@@ -41,7 +41,7 @@ MonoBehaviour:
     value: 1
   iteration:
     overrideState: 1
-    value: 9
+    value: 1
   strength:
     overrideState: 1
     value: 10

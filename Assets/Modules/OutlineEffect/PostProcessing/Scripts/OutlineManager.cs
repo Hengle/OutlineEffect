@@ -12,6 +12,7 @@ public class OutlineManager : Singleton<OutlineManager>
     private List<Material> m_materials = new List<Material>();
     private Material m_prepassMaterial;
     private Shader m_prepassShader;
+    private Color m_cacheColor;
 
     public void Register(OutlineComponent outlineComponent)
     {
@@ -39,12 +40,12 @@ public class OutlineManager : Singleton<OutlineManager>
                 continue;
             }
 
-            Color color = m_materials[i].GetColor(COLOR_ID);
+            m_cacheColor = m_materials[i].GetColor(COLOR_ID);
 
             m_materials[i] = new Material(m_prepassShader);
-            m_materials[i].SetColor(COLOR_ID, color);
+            m_materials[i].SetColor(COLOR_ID, m_cacheColor);
 
-            m_prepassMaterials[color] = m_materials[i];
+            m_prepassMaterials[m_cacheColor] = m_materials[i];
         }
     }
 

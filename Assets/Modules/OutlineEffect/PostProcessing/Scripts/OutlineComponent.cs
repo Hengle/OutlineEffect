@@ -11,6 +11,7 @@ public class OutlineComponent : MonoBehaviour
         List<Renderer> cacheRenderers = new List<Renderer>();
         cacheRenderers.AddRange(GetComponentsInChildren<SkinnedMeshRenderer>());
         cacheRenderers.AddRange(GetComponentsInChildren<MeshRenderer>());
+        cacheRenderers.AddRange(GetComponentsInChildren<SpriteRenderer>());
 
         renderers = cacheRenderers.ToArray();
     }
