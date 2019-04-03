@@ -2,26 +2,10 @@ using System;
 
 namespace UnityEngine.Rendering.PostProcessing
 {
-    public enum PrepassType
-    {
-        SolidColor,
-        SolidColorDepth,
-        Alpha,
-        AlphaDepth,
-    }
-
-    [Serializable]
-    public class PrepassTypeParamter : ParameterOverride<PrepassType>
-    {
-
-    }
-
     [Serializable]
     [PostProcess(typeof(OutlineRenderer), PostProcessEvent.AfterStack, "Custom/Outline")]
     public sealed class Outline : PostProcessEffectSettings
     {
-        public PrepassTypeParamter prepassType = new PrepassTypeParamter { value = PrepassType.SolidColor };
-
         [Range(1, 5)]
         public IntParameter downsample = new IntParameter { value = 1 };
 
@@ -43,10 +27,6 @@ namespace UnityEngine.Rendering.PostProcessing
     internal sealed class OutlineRenderer : PostProcessEffectRenderer<Outline>
     {
         private const string SHADER_NAME_OUTLINE = "Hidden/Custom/Outline";
-        private const string SHADER_NAME_PREPASS_SOLID_COLOR = "Outline/Prepass/SolidColor";
-        private const string SHADER_NAME_PREPASS_SOLID_COLOR_DEPTH = "Outline/Prepass/SolidColorDepth";
-        private const string SHADER_NAME_PREPASS_ALPHA = "Outline/Prepass/Alpha";
-        private const string SHADER_NAME_PREPASS_ALPHA_DEPTH = "Outline/Prepass/AlphaDepth";
 
         private const string PROPERTY_NAME_PREPASS_RT = "_PrepassRT";
         private const string PROPERTY_NAME_OFFSET = "_Offset";
@@ -54,8 +34,6 @@ namespace UnityEngine.Rendering.PostProcessing
         private const string PROPERTY_NAME_STRENGTH = "_Strength";
 
         private Shader m_shader;
-        private Shader m_prepassShader;
-        private PrepassType m_lastPrepassType = PrepassType.SolidColor;
         private int m_prepassRT;
         private int m_tempRT1;
         private int m_tempRT2;
@@ -70,8 +48,6 @@ namespace UnityEngine.Rendering.PostProcessing
 
         public override void Init()
         {
-            UpdatePrepassShader();
-
             m_shader = Shader.Find(SHADER_NAME_OUTLINE);
             m_prepassRT = Shader.PropertyToID(PROPERTY_NAME_PREPASS_RT);
             m_offsetID = Shader.PropertyToID(PROPERTY_NAME_OFFSET);
@@ -81,37 +57,8 @@ namespace UnityEngine.Rendering.PostProcessing
             base.Init();
         }
 
-        private void UpdatePrepassShader()
-        {
-            if(m_prepassShader != null && m_lastPrepassType == settings.prepassType)
-            {
-                return;
-            }
-
-            m_lastPrepassType = settings.prepassType;
-            switch(m_lastPrepassType)
-            {
-                case PrepassType.SolidColor:
-                    m_prepassShader = Shader.Find(SHADER_NAME_PREPASS_SOLID_COLOR);
-                    break;
-                case PrepassType.SolidColorDepth:
-                    m_prepassShader = Shader.Find(SHADER_NAME_PREPASS_SOLID_COLOR_DEPTH);
-                    break;
-                case PrepassType.Alpha:
-                    m_prepassShader = Shader.Find(SHADER_NAME_PREPASS_ALPHA);
-                    break;
-                case PrepassType.AlphaDepth:
-                    m_prepassShader = Shader.Find(SHADER_NAME_PREPASS_ALPHA_DEPTH);
-                    break;
-            }
-
-            OutlineManager.Instance.SetPrepassShader(m_prepassShader);
-        }
-
         public override void Render(PostProcessRenderContext context)
         {
-            UpdatePrepassShader();
-
             var sheet = context.propertySheets.Get(m_shader);
 
             context.command.GetTemporaryRT(m_prepassRT, context.camera.pixelWidth >> settings.downsample, context.camera.pixelHeight >> settings.downsample);
@@ -126,8 +73,8 @@ namespace UnityEngine.Rendering.PostProcessing
                 return;
             }
 
-            context.GetScreenSpaceTemporaryRT(context.command, m_tempRT1);
-            context.GetScreenSpaceTemporaryRT(context.command, m_tempRT2);
+            context.command.GetTemporaryRT(m_tempRT1, context.camera.pixelWidth >> settings.downsample, context.camera.pixelHeight >> settings.downsample);
+            context.command.GetTemporaryRT(m_tempRT2, context.camera.pixelWidth >> settings.downsample, context.camera.pixelHeight >> settings.downsample);
 
             sheet.properties.SetVector(m_offsetID, new Vector4(0, settings.blurOffset, 0, 0));
             context.command.BlitFullscreenTriangle(m_prepassRT, m_tempRT1, sheet, 0);

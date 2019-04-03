@@ -1,33 +1,34 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 public class OutlineComponent : MonoBehaviour
 {
-    [SerializeField] public Color color = Color.white;
-    [SerializeField] public Renderer[] renderers;
+    [SerializeField] private Color m_color = Color.white;
+    [SerializeField] private OutlinePrepassType m_outlinePrepassType = OutlinePrepassType.SolidColor;
+    private OutlineData m_outlineData;
 
-    private void Reset()
+    private void Awake()
     {
-        List<Renderer> cacheRenderers = new List<Renderer>();
-        cacheRenderers.AddRange(GetComponentsInChildren<SkinnedMeshRenderer>());
-        cacheRenderers.AddRange(GetComponentsInChildren<MeshRenderer>());
-        cacheRenderers.AddRange(GetComponentsInChildren<SpriteRenderer>());
+        m_outlineData = new OutlineData(gameObject, m_color, m_outlinePrepassType);
+    }
 
-        renderers = cacheRenderers.ToArray();
+    private void OnValidate()
+    {
+        if(m_outlineData == null)
+        {
+            m_outlineData = new OutlineData(gameObject, m_color, m_outlinePrepassType);
+        }
+
+        m_outlineData.SetColor(m_color);
+        m_outlineData.SetPrepassType(m_outlinePrepassType);
     }
 
     private void OnEnable()
     {
-        if(renderers == null || renderers.Length == 0)
-        {
-            return;
-        }
-
-        OutlineManager.Instance.Register(this);
+        OutlineManager.Instance.Register(m_outlineData);
     }
 
     private void OnDisable()
     {
-        OutlineManager.Instance.Unregister(this);
+        OutlineManager.Instance.Unregister(m_outlineData);
     }
 }

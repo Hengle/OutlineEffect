@@ -112,12 +112,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!137 &1069240 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 13700000, guid: 0a5283d4ea0a12d439d4c0e148dc81d9,
-    type: 3}
-  m_PrefabInstance: {fileID: 630508313}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &17322366
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -286,10 +280,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f59bf8542ab414c84b203e98669fbe2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color: {r: 0, g: 0, b: 1, a: 1}
-  renderers:
-  - {fileID: 1388538196}
-  - {fileID: 1078777835}
+  m_color: {r: 1, g: 0, b: 0, a: 1}
+  m_prepassType: 0
 --- !u!1001 &630508313
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -626,12 +618,6 @@ MonoBehaviour:
   m_AfterStackBundles:
   - assemblyQualifiedName: UnityEngine.Rendering.PostProcessing.Outline, Assembly-CSharp,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
---- !u!137 &1388538196 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 13700000, guid: 0a5283d4ea0a12d439d4c0e148dc81d9,
-    type: 3}
-  m_PrefabInstance: {fileID: 17322366}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1425678151 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400100, guid: 0a5283d4ea0a12d439d4c0e148dc81d9,
@@ -656,9 +642,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f59bf8542ab414c84b203e98669fbe2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color: {r: 1, g: 0, b: 0, a: 1}
-  renderers:
-  - {fileID: 1069240}
+  m_color: {r: 0, g: 1, b: 0, a: 1}
+  m_prepassType: 0
 --- !u!1 &1720267381
 GameObject:
   m_ObjectHideFlags: 0
@@ -780,9 +765,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f59bf8542ab414c84b203e98669fbe2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color: {r: 0, g: 1, b: 0, a: 1}
-  renderers:
-  - {fileID: 1884824641}
+  m_color: {r: 0, g: 0, b: 1, a: 1}
+  m_prepassType: 2
 --- !u!212 &1884824641
 SpriteRenderer:
   m_ObjectHideFlags: 0

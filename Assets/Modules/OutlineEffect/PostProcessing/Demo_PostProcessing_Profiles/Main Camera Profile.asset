@@ -30,9 +30,6 @@ MonoBehaviour:
   enabled:
     overrideState: 1
     value: 1
-  prepassType:
-    overrideState: 1
-    value: 3
   downsample:
     overrideState: 1
     value: 1

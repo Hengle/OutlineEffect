@@ -5,67 +5,66 @@ using UnityEngine.Rendering;
 
 public class OutlineManager : Singleton<OutlineManager>
 {
-    private readonly int COLOR_ID = Shader.PropertyToID("_Color");
-
-    private List<OutlineComponent> m_outlineComponents = new List<OutlineComponent>();
-    private Dictionary<Color, Material> m_prepassMaterials = new Dictionary<Color, Material>();
-    private List<Material> m_materials = new List<Material>();
-    private Material m_prepassMaterial;
-    private Shader m_prepassShader;
-    private Color m_cacheColor;
-
-    public void Register(OutlineComponent outlineComponent)
+    public readonly int COLOR_ID = Shader.PropertyToID("_Color");
+    private readonly Dictionary<OutlinePrepassType, Shader> m_prepassShaders = new Dictionary<OutlinePrepassType, Shader>
     {
-        if (m_outlineComponents.Contains(outlineComponent))
+        { OutlinePrepassType.SolidColor, Shader.Find("Outline/Prepass/SolidColor") },
+        { OutlinePrepassType.SolidColorDepth, Shader.Find("Outline/Prepass/SolidColorDepth") },
+        { OutlinePrepassType.Alpha, Shader.Find("Outline/Prepass/Alpha") },
+        { OutlinePrepassType.AlphaDepth, Shader.Find("Outline/Prepass/AlphaDepth") },
+    };
+
+    private List<OutlineData> m_outlineDatas = new List<OutlineData>();
+
+    public Shader GetPrepassShader(OutlinePrepassType outlinePrepassType)
+    {
+        return m_prepassShaders[outlinePrepassType];
+    }
+
+    public void Register(GameObject parent, Color color, OutlinePrepassType outlinePrepassType)
+    {
+        Register(new OutlineData(parent, color, outlinePrepassType));
+    }
+
+    public void Register(OutlineData outlineData)
+    {
+        if (outlineData.renderers == null || outlineData.renderers.Length == 0)
         {
             return;
         }
 
-        m_outlineComponents.Add(outlineComponent);
-    }
-
-    public void Unregister(OutlineComponent outlineComponent)
-    {
-        m_outlineComponents.Remove(outlineComponent);
-    }
-
-    public void SetPrepassShader(Shader shader)
-    {
-        m_prepassShader = shader;
-
-        for(int i = 0, count = m_materials.Count; i < count; i++)
+        if (m_outlineDatas.Contains(outlineData))
         {
-            if(m_materials[i] == null)
-            {
-                continue;
-            }
-
-            m_cacheColor = m_materials[i].GetColor(COLOR_ID);
-
-            m_materials[i] = new Material(m_prepassShader);
-            m_materials[i].SetColor(COLOR_ID, m_cacheColor);
-
-            m_prepassMaterials[m_cacheColor] = m_materials[i];
+            return;
         }
+
+        m_outlineDatas.Add(outlineData);
+    }
+
+    public void Unregister(GameObject parent)
+    {
+        for(int i = 0, count = m_outlineDatas.Count; i < count; i++)
+        {
+            if(m_outlineDatas[i].parent == parent)
+            {
+                m_outlineDatas.RemoveAt(i);
+                break;
+            }
+        }
+    }
+
+    public void Unregister(OutlineData outlineData)
+    {
+        m_outlineDatas.Remove(outlineData);
     }
 
     public void ExecuteCommandBuffer(CommandBuffer commandBuffer)
     {
-        for (int i = 0, count = m_outlineComponents.Count; i < count; i++)
+        for (int i = 0, count = m_outlineDatas.Count; i < count; i++)
         {
-            m_prepassMaterials.TryGetValue(m_outlineComponents[i].color, out m_prepassMaterial);
-            if(m_prepassMaterial == null)
+            for (int j = 0; j < m_outlineDatas[i].renderers.Length; j++)
             {
-                m_prepassMaterial = new Material(m_prepassShader);
-                m_prepassMaterial.SetColor(COLOR_ID, m_outlineComponents[i].color);
-
-                m_prepassMaterials.Add(m_outlineComponents[i].color, m_prepassMaterial);
-                m_materials.Add(m_prepassMaterial);
-            }
-
-            for (int j = 0; j < m_outlineComponents[i].renderers.Length; j++)
-            {
-                commandBuffer.DrawRenderer(m_outlineComponents[i].renderers[j], m_prepassMaterial);
+                commandBuffer.DrawRenderer(m_outlineDatas[i].renderers[j], m_outlineDatas[i].prepassMaterial);
             }
         }
     }
