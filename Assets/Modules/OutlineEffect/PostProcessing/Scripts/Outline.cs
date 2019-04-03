@@ -29,6 +29,8 @@ namespace UnityEngine.Rendering.PostProcessing
         private const string SHADER_NAME_OUTLINE = "Hidden/Custom/Outline";
 
         private const string PROPERTY_NAME_PREPASS_RT = "_PrepassRT";
+        private const string PROPERTY_NAME_TEMP_RT1 = "_TempRT1";
+        private const string PROPERTY_NAME_TEMP_RT2 = "_TempRT2";
         private const string PROPERTY_NAME_OFFSET = "_Offset";
         private const string PROPERTY_NAME_BLUR_TEX = "_BlurTex";
         private const string PROPERTY_NAME_STRENGTH = "_Strength";
@@ -50,6 +52,8 @@ namespace UnityEngine.Rendering.PostProcessing
         {
             m_shader = Shader.Find(SHADER_NAME_OUTLINE);
             m_prepassRT = Shader.PropertyToID(PROPERTY_NAME_PREPASS_RT);
+            m_tempRT1 = Shader.PropertyToID(PROPERTY_NAME_TEMP_RT1);
+            m_tempRT2 = Shader.PropertyToID(PROPERTY_NAME_TEMP_RT2);
             m_offsetID = Shader.PropertyToID(PROPERTY_NAME_OFFSET);
             m_blurTexID = Shader.PropertyToID(PROPERTY_NAME_BLUR_TEX);
             m_strengthID = Shader.PropertyToID(PROPERTY_NAME_STRENGTH);
@@ -95,8 +99,6 @@ namespace UnityEngine.Rendering.PostProcessing
             if(settings.debugBlur)
             {
                 context.command.BlitFullscreenTriangle(m_tempRT2, context.destination);
-                context.command.ReleaseTemporaryRT(m_tempRT1);
-                context.command.ReleaseTemporaryRT(m_tempRT2);
                 return;
             }
 
@@ -106,16 +108,12 @@ namespace UnityEngine.Rendering.PostProcessing
             if(settings.debugCulling)
             {
                 context.command.BlitFullscreenTriangle(m_tempRT1, context.destination);
-                context.command.ReleaseTemporaryRT(m_tempRT1);
-                context.command.ReleaseTemporaryRT(m_tempRT2);
                 return;
             }
 
             sheet.properties.SetFloat(m_strengthID, settings.strength);
-            context.command.SetRenderTarget(m_blurTexID, m_tempRT1);
+            context.command.SetGlobalTexture(m_blurTexID, m_tempRT1);
             context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 2);
-            context.command.ReleaseTemporaryRT(m_tempRT1);
-            context.command.ReleaseTemporaryRT(m_tempRT2);
         }
     }
 }
