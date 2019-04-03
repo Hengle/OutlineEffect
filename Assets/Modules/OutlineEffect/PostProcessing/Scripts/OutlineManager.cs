@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.PostProcessing;
 
 public class OutlineManager : Singleton<OutlineManager>
 {
@@ -15,6 +16,8 @@ public class OutlineManager : Singleton<OutlineManager>
     };
 
     private List<OutlineData> m_outlineDatas = new List<OutlineData>();
+    private Outline m_outline;
+    private bool m_initialized;
 
     public Shader GetPrepassShader(OutlinePrepassType outlinePrepassType)
     {
@@ -39,6 +42,12 @@ public class OutlineManager : Singleton<OutlineManager>
         }
 
         m_outlineDatas.Add(outlineData);
+        UpdateOutlineActive();
+    }
+
+    public void Unregister(OutlineData outlineData)
+    {
+        Unregister(outlineData.parent);
     }
 
     public void Unregister(GameObject parent)
@@ -48,14 +57,10 @@ public class OutlineManager : Singleton<OutlineManager>
             if(m_outlineDatas[i].parent == parent)
             {
                 m_outlineDatas.RemoveAt(i);
+                UpdateOutlineActive();
                 break;
             }
         }
-    }
-
-    public void Unregister(OutlineData outlineData)
-    {
-        m_outlineDatas.Remove(outlineData);
     }
 
     public void ExecuteCommandBuffer(CommandBuffer commandBuffer)
@@ -66,6 +71,58 @@ public class OutlineManager : Singleton<OutlineManager>
             {
                 commandBuffer.DrawRenderer(m_outlineDatas[i].renderers[j], m_outlineDatas[i].prepassMaterial);
             }
+        }
+    }
+
+    private void UpdateOutlineActive()
+    {
+        GetOutline();
+
+        if (m_outline == null)
+        {
+            return;
+        }
+        
+        m_outline.active = m_outlineDatas.Count > 0;
+    }
+
+    private void GetOutline()
+    {
+        if(m_initialized)
+        {
+            return;
+        }
+
+        m_initialized = true;
+
+        //Find Outline Settings from Main Camera
+        if (m_outline == null)
+        {
+            Camera mainCamera = Camera.main;
+            if (mainCamera == null)
+            {
+                return;
+            }
+
+            PostProcessVolume postProcessVolume = mainCamera.GetComponent<PostProcessVolume>();
+            if (postProcessVolume == null || postProcessVolume.sharedProfile == null)
+            {
+                return;
+            }
+
+            m_outline = postProcessVolume.sharedProfile.GetSetting<Outline>();
+        }
+
+        //Find Outline Settings from PostProcessVolume
+        if (m_outline == null)
+        {
+            PostProcessVolume postProcessVolume = GameObject.FindObjectOfType<PostProcessVolume>();
+            if (postProcessVolume == null || postProcessVolume.sharedProfile == null)
+            {
+                return;
+            }
+
+            m_outline = postProcessVolume.sharedProfile.GetSetting<Outline>();
         }
     }
 }
